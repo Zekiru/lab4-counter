@@ -147,10 +147,10 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 * B. 
 * Before each clock edge, the new value has to be fully calculated and stable at the register's input. 
 * That means the value coming out of the register, passing through all 32 full adders (the carry can ripple through every bit)
-* and through the mux, then arriving back at the register input. That trip takes a fixed amount of time, set by how fast the 
-* gates are. If the clock period is shorter than that, the next edge arrives before the answer is ready, and the register 
-* captures a half-computed, wrong value. So the clock speed is limited by the slowest path in the circuit, which here is the 
-* carry rippling through the adder.
+* and through the mux, then arriving back at the register input. That trip takes a fixed amount of time (in our testing, this 
+* took around 100 picoseconds), set by how fast the gates are. If the clock period is shorter than that, the next edge arrives 
+* before the answer is ready, and the register captures a half-computed, wrong value. So the clock speed is limited by the slowest
+* path in the circuit (the critical path), which here is the carry rippling through the adder.
 *
 *********************************************************************************************************************************
 
