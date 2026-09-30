@@ -115,13 +115,43 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 
 *********************************************************************************************************************************
 * ANSWERS TO GUIDE QUESTIONS
-* a. 
-* b. Before each clock edge, the new value has to be fully calculated and stable at the register's input. 
-*    That means the value coming out of the register, passing through all 32 full adders (the carry can ripple through every bit)
-*    and through the mux, then arriving back at the register input. That trip takes a fixed amount of time, set by how fast the 
-*    gates are. If the clock period is shorter than that, the next edge arrives before the answer is ready, and the register 
-*    captures a half-computed, wrong value. So the clock speed is limited by the slowest path in the circuit, which here is the 
-*    carry rippling through the adder.
+*********************************************************************************************************************************
+*
+* A. 
+* reg[31:0] (the output) is incremented/decremented by the amount specified in incr[31:0] on every rising clock edge, while 
+* the reset signal is 0. Whenever reset becomes 1, the value of the output becomes 0 after one additional clock cycle. If the 
+* reset signal is then set to 0, incrementing/decrementing starts at 0. This also takes one additional clock cycle to reflect in
+* the output (the output will be -1). 
+*
+* The significant delays between changing the reset signal value and reg[31:0] showing the proper output are caused by the time at
+* which the reset signal is changed (all four instances). The timing of each of these four changes coincides extremely close to a
+* rising edge of the clock. This means that even though the reset signal change occurs before the clock rises, the values inputted
+* to the register will only become valid and updated once the clock is already rising. This is because of the natural delay of the
+* first two parts of the counter32 circuit (the adder and the mux (which is where the reset is used)). 
+*
+* For example, when the reset signal was turned on while reg[31:0]'s value was 12, the clock rose before the value of the mux 
+* output/register input d[31:0] finished changing from 11 to 0. This is why the output became 11 and not 0 even with the reset 
+* signal turned on; the register never saw the updated value of d[31:0] when it was time to update its data. This reset timing 
+* issue is also the reason why there is an enormous delay at the start of the simulation. The value of the output initially starts
+* as invalid and only becomes 0 after the reset is turned on for the first time, but the time that the mux output/register input
+* d[31:0] finishes changing to 0 is right when the clock has already started rising. The register sees the old invalid input, so
+* the output value remains invalid for another whole clock cycle. 
+*
+* The solution to the timing issue is simple: make the reset signal change slightly earlier for all four changes. We have
+* experimentally verified that by changing the TDELAY of the reset waveform from 14.8 to 14.5ns, the massive chunk of delay at
+* the start of the simulation is cut in half, and all the 3 cases of incorrect output remaining for one additional clock cycle 
+* are resolved.
+*
+*********************************************************************************************************************************
+*
+* B. 
+* Before each clock edge, the new value has to be fully calculated and stable at the register's input. 
+* That means the value coming out of the register, passing through all 32 full adders (the carry can ripple through every bit)
+* and through the mux, then arriving back at the register input. That trip takes a fixed amount of time, set by how fast the 
+* gates are. If the clock period is shorter than that, the next edge arrives before the answer is ready, and the register 
+* captures a half-computed, wrong value. So the clock speed is limited by the slowest path in the circuit, which here is the 
+* carry rippling through the adder.
+*
 *********************************************************************************************************************************
 
 *******************************************************************************
