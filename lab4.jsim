@@ -33,9 +33,9 @@
 * 32-Bit Counter
 *******************************************************************************
 .subckt counter32 reset a[31:0] f[31:0] clk
-  ********
-  * Replace these comments with your code.
-  ********
+    Xincr a[31:0] f[31:0] 0 sum[31:0] c31 c30 add32
+    Xmux reset#32 sum[31:0] 0#32 d[31:0] mux2
+    Xreg d[31:0] clk#32 f[31:0] dreg
 .ends
 
 
